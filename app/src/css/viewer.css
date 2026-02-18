@@ -1,0 +1,7 @@
+.pdfContainer {
+  display: block; /* makes iframe behave like a block element */
+  margin: 0 auto; /* centers horizontally */
+  width: 80%; /* occupies half the page width */
+  height: 100vh; /* full viewport height */
+  border: none; /* optional: remove default border */
+}

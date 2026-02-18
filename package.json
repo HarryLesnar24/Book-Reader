@@ -1,0 +1,13 @@
+{
+  "name": "collab-book-reader",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/pdfjs-dist": "^2.10.377",
+    "vite": "^7.3.1"
+  }
+}

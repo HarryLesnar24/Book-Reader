@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <link rel="stylesheet" href="/static/pdf_viewer.css" /> -->
+    <link rel="stylesheet" href="/static/dist/viewCss.css" 
+    <title>{{filename}}</title>
+  </head>
+  <body>
+    <section>
+      <iframe
+        class="pdfContainer"
+        data-url="{{url}}"
+        src="/web/viewer.html?file={{url}}"
+      >
+      </iframe>
+    </section>
+    <!-- <script defer type="module" src="/static/dist/viewer.js"></script> -->
+  </body>
+</html>
