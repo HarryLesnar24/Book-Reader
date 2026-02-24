@@ -8,16 +8,31 @@ from app.models import Book
 from sqlalchemy import text, select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from tenacity import retry, wait_exponential_jitter, stop_after_attempt, retry_if_result, retry_if_exception_type, RetryError, AsyncRetrying
+from tenacity import (
+    retry,
+    wait_exponential_jitter,
+    stop_after_attempt,
+    retry_if_result,
+    retry_if_exception_type,
+    RetryError,
+    AsyncRetrying,
+)
 
 
-asyncEngine = create_async_engine('postgresql+asyncpg://postgres@127.0.0.1:5432/appdb')
-asyncSession = async_sessionmaker(bind=asyncEngine, class_=AsyncSession, expire_on_commit=False)
+asyncEngine = create_async_engine("postgresql+asyncpg://postgres@127.0.0.1:5432/appdb")
+asyncSession = async_sessionmaker(
+    bind=asyncEngine, class_=AsyncSession, expire_on_commit=False
+)
 containerID = socket.gethostname()
 
-@retry(retry=retry_if_result(lambda r: not r), wait=wait_exponential_jitter(initial=1, max=900), stop=stop_after_attempt(10))
+
+@retry(
+    retry=retry_if_result(lambda r: not r),
+    wait=wait_exponential_jitter(initial=1, max=900),
+    stop=stop_after_attempt(10),
+)
 async def hydrator(session: AsyncSession, worker_id: str):
-      query = text("""
+    query = text("""
         WITH prioritized_jobs AS (
             SELECT 
                 *,
@@ -60,32 +75,39 @@ async def hydrator(session: AsyncSession, worker_id: str):
             WHERE jobs.job_uid = selected_batch.job_uid
             RETURNING jobs.*;
 """)
-      stmt = select(Job).from_statement(query).params(worker_id=worker_id)
-      result = await session.execute(stmt)
-      jobs = result.scalars().all()
-      return jobs
+    stmt = select(Job).from_statement(query).params(worker_id=worker_id)
+    result = await session.execute(stmt)
+    jobs = result.scalars().all()
+    return jobs
 
 
 async def worker(session: AsyncSession, container_id: str):
+    initialTime = 60
     localQueue = {}
     while True:
         try:
             assignedJobs = await hydrator(session, container_id)
+            if initialTime > 60:
+                initialTime = 60
         except RetryError:
-            await asyncio.sleep(60)
+            await asyncio.sleep(initialTime)
+            initialTime *= 2
             continue
 
         for job in assignedJobs:
-             stmt = select(Book.filepath).where(job.book_uid == Book.uid) # type: ignore
-             result = await session.execute(stmt)
-             row = result.first()
-             filepath = row[0] if row else None
-             if job.user_uid in localQueue:
-                  heapq.heappush(localQueue[job.user_uid], (job.priority, job.job_type, filepath, job))
-             else:
+            stmt = select(Book.filepath).where(job.book_uid == Book.uid)  # type: ignore
+            result = await session.execute(stmt)
+            row = result.first()
+            filepath = row[0] if row else None
+            if job.user_uid in localQueue:
+                heapq.heappush(
+                    localQueue[job.user_uid],
+                    (job.priority, job.job_type, filepath, job),
+                )
+            else:
                 localQueue[job.user_uid] = []
-                heapq.heappush(localQueue[job.user_uid], (job.priority, job.job_type, filepath, job))
-        
-        
-
-        
+                heapq.heappush(
+                    localQueue[job.user_uid],
+                    (job.priority, job.job_type, filepath, job),
+                )
+                

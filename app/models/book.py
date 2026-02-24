@@ -12,7 +12,7 @@ from app.schemas.book import BookStatusModel
 #     BookStatusModel,
 #     name='bookstatus',
 #     create_type=True,
-    
+
 # )
 
 
@@ -37,9 +37,15 @@ class Book(SQLModel, table=True):
             nullable=False,
         )
     )
-    status: BookStatusModel  = Field(default=BookStatusModel.pending, sa_column=Column(Enum(BookStatusModel), server_default=BookStatusModel.pending, nullable=False))
+    status: BookStatusModel = Field(
+        default=BookStatusModel.pending,
+        sa_column=Column(
+            Enum(BookStatusModel),
+            server_default=BookStatusModel.pending,
+            nullable=False,
+        ),
+    )
     total_pages: int = Field(sa_column=Column(pg.INTEGER, nullable=True), default=None)
-    duplicate: bool = Field(default=False, sa_column=Column(pg.BOOLEAN, server_default=text('false')))
-    
-    
-
+    duplicate: bool = Field(
+        default=False, sa_column=Column(pg.BOOLEAN, server_default=text("false"))
+    )

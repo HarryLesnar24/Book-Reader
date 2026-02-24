@@ -1,5 +1,14 @@
 from pathlib import Path
-from fastapi import APIRouter, Depends, status, File, UploadFile, HTTPException, Request, BackgroundTasks
+from fastapi import (
+    APIRouter,
+    Depends,
+    status,
+    File,
+    UploadFile,
+    HTTPException,
+    Request,
+    BackgroundTasks,
+)
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -16,15 +25,13 @@ from app.config import Config
 from app.utilis.jobs import JobCreator
 
 
-
-
 bookRouter = APIRouter()
 bookService = BookService()
 authService = AuthService()
 userService = UserService()
 initialValidator = DocumentValidator()
 
-templates = Jinja2Templates(directory=f'{Path('app/templates').absolute()}')
+templates = Jinja2Templates(directory=f"{Path('app/templates').absolute()}")
 
 
 @bookRouter.post("/uploadfiles")
@@ -84,15 +91,21 @@ async def getBookById(
 async def getAllBooks(
     request: Request,
     session: AsyncSession = Depends(getSession),
-    userid: str = '019b91ed-5ca4-7c7b-a31a-8534494d622b',
-    
+    userid: str = "019b91ed-5ca4-7c7b-a31a-8534494d622b",
 ):
     books = await bookService.getUserBooks(userid, session)
     if not books:
         raise HTTPException(
             status_code=status.HTTP_204_NO_CONTENT, detail="No books. upload book first"
         )
-    return templates.TemplateResponse(name='catalog.html', context={'request': request, 'books': books, 'url': f'{Config.DOMAIN}api/{Config.API_VERSION}/reader'})
+    return templates.TemplateResponse(
+        name="catalog.html",
+        context={
+            "request": request,
+            "books": books,
+            "url": f"{Config.DOMAIN}api/{Config.API_VERSION}/reader",
+        },
+    )
 
 
 @bookRouter.post("/update/{bookid}")
@@ -120,7 +133,7 @@ async def streamBookData(
     request: Request,
     bookid: str,
     filename: str,
-    userid: str = '019b91ed-5ca4-7c7b-a31a-8534494d622b',
+    userid: str = "019b91ed-5ca4-7c7b-a31a-8534494d622b",
     session: AsyncSession = Depends(getSession),
 ) -> StreamingResponse:
     book = await bookService.getBookByUid(
@@ -143,9 +156,9 @@ async def streamBookData(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"message": "File not present in storage system"},
         )
-    
+
     fileSize = filePath.stat().st_size
-    rangeHeader = request.headers.get('range')
+    rangeHeader = request.headers.get("range")
     contents = {".pdf": "application/pdf"}
     contentType = contents.get(filePath.suffix, "application/octet-stream")
     header = {"Content-Disposition": f'inline; filename="{filename}"'}
@@ -156,41 +169,37 @@ async def streamBookData(
         end = int(end) if end else fileSize - 1
 
         if start < 0 or end < start:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={
-                "message": "Invalid Range Request"
-            })
-        
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"message": "Invalid Range Request"},
+            )
+
         if start >= fileSize:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={
-                "message": "Invalid Range Request"
-            })
-        
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"message": "Invalid Range Request"},
+            )
+
         end = min(end, fileSize - 1)
 
-        header.update({"Content-Range": f"bytes {start}-{end}/{fileSize}",
-                       "Accept-Range": "bytes",
-                       "Content-Length": str(end - start + 1)})
+        header.update(
+            {
+                "Content-Range": f"bytes {start}-{end}/{fileSize}",
+                "Accept-Range": "bytes",
+                "Content-Length": str(end - start + 1),
+            }
+        )
         print(f"From Range Streamer: {end - start + 1} chunk")
-        return StreamingResponse(docStreamer.rangeStreamer(filePath, start, end), media_type=contentType, headers=header, status_code=status.HTTP_206_PARTIAL_CONTENT)
-    
+        return StreamingResponse(
+            docStreamer.rangeStreamer(filePath, start, end),
+            media_type=contentType,
+            headers=header,
+            status_code=status.HTTP_206_PARTIAL_CONTENT,
+        )
+
     print(f"From Streamer")
     return StreamingResponse(
         content=docStreamer.fileStreamer(filePath),
         media_type=contentType,
         headers=header,
     )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

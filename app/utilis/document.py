@@ -5,7 +5,6 @@ from fastapi import UploadFile
 from pathlib import Path
 
 
-
 from app.config import Config
 
 
@@ -49,12 +48,13 @@ class DocumentStream:
             while chunk := await file.read(chunkSize):
                 yield chunk
 
-
-    async def rangeStreamer(self, filePath: Path, start: int, end: int) -> AsyncGenerator[bytes]:
+    async def rangeStreamer(
+        self, filePath: Path, start: int, end: int
+    ) -> AsyncGenerator[bytes]:
         async with aiofiles.open(filePath, mode="rb") as pages:
             await pages.seek(start)
             remainingChunk = end - start + 1
-            chunkSize  = 64 * 1024
+            chunkSize = 64 * 1024
             while chunk := await pages.read(min(chunkSize, remainingChunk)):
                 yield chunk
                 remainingChunk -= len(chunk)

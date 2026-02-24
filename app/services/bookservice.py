@@ -10,18 +10,20 @@ from sqlalchemy.exc import SQLAlchemyError
 import aiofiles
 
 
-
 class BookService:
     async def getUserBooks(self, userUID: str, session: AsyncSession) -> Sequence[Book]:
         statement = select(Book).where((Book.user_uid == userUID))
         books = await session.exec(statement)
         return books.all()
 
-    async def findByName(self, bookName: str, user_id: str, session: AsyncSession) -> bool:
-        statement = select(Book).where((Book.filename == bookName) & (Book.user_uid == user_id))
+    async def findByName(
+        self, bookName: str, user_id: str, session: AsyncSession
+    ) -> bool:
+        statement = select(Book).where(
+            (Book.filename == bookName) & (Book.user_uid == user_id)
+        )
         book = await session.exec(statement)
         return True if book.first() else False
-
 
     async def createBooks(
         self, files: List[UploadFile], user: User, session: AsyncSession
@@ -53,9 +55,7 @@ class BookService:
                 )
                 newBook = Book(**book.model_dump())
 
-                filePath = (
-                    uploadDir / f"{Path(filename).stem}-{newBook.uid}{suffix}"
-                )
+                filePath = uploadDir / f"{Path(filename).stem}-{newBook.uid}{suffix}"
 
                 # Write file safely
                 try:
@@ -65,7 +65,7 @@ class BookService:
                             await buffer.write(chunk)
                 except Exception as io_err:
                     raise IOError(f"Failed to save file {filename}: {io_err}")
-                
+
                 if duplicate:
                     newBook.duplicate = duplicate
                 uploadedPaths.append(filePath)
@@ -97,7 +97,6 @@ class BookService:
                     path.unlink()
             raise RuntimeError(f"Unexpected error during book upload: {str(e)}") from e
 
-
     async def getBookByUid(
         self, bookUid: str, userUid: str, session: AsyncSession
     ) -> Book | None:
@@ -115,7 +114,7 @@ class BookService:
             setattr(book, k, v)
         await session.commit()
         return book
-    
+
     async def getBookLocation(self, book_uid: str, session: AsyncSession):
         statement = select(Book.filepath).where(Book.uid == book_uid)
         response = await session.exec(statement)

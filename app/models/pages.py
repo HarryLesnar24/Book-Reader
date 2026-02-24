@@ -5,6 +5,4 @@ import sqlalchemy.dialects.postgresql as pg
 
 
 class Page(SQLModel, table=True):
-    uid: uuid.UUID = Field(
-        
-    )
+    uid: uuid.UUID = Field()
