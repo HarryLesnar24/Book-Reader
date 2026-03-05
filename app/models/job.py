@@ -1,4 +1,3 @@
-from pickle import FALSE
 from sqlmodel import SQLModel, Field, Column, func, Enum
 from datetime import datetime
 from sqlalchemy import DateTime, UniqueConstraint

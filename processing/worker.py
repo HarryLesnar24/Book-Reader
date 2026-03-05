@@ -110,4 +110,3 @@ async def worker(session: AsyncSession, container_id: str):
                     localQueue[job.user_uid],
                     (job.priority, job.job_type, filepath, job),
                 )
-                

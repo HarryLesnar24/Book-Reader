@@ -7,7 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "aiofiles>=25.1.0",
     "alembic>=1.17.2",
-    "alembic-postgresql-enum>=1.8.0",
+    "alembic-postgresql-enum==1.10.0",
     "asyncpg>=0.31.0",
     "docling[rapidocr,tesserocr,vlm]>=2.74.0",
     "edwh-uuid7>=0.2.3",
