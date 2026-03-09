@@ -39,3 +39,5 @@ class User(SQLModel, table=True):
             nullable=False,
         )
     )
+
+    books: List["Book"] = Relationship(back_populates='user', sa_relationship_kwargs={'lazy': 'raise_on_sql'}) # type: ignore

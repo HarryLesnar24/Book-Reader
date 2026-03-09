@@ -49,3 +49,9 @@ class Book(SQLModel, table=True):
     duplicate: bool = Field(
         default=False, sa_column=Column(pg.BOOLEAN, server_default=text("false"))
     )
+
+
+    user: Optional["User"] = Relationship(back_populates='books') # type: ignore
+    pages: List["Page"] = Relationship(back_populates='book', sa_relationship_kwargs={'lazy': 'raise_on_sql'}) # type: ignore
+
+

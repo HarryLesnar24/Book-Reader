@@ -1,10 +1,11 @@
 from datetime import datetime
-from sqlmodel import SQLModel, Field, Column, Enum, func
+from sqlmodel import SQLModel, Field, Column, Enum, func, Relationship
 import uuid
 from edwh_uuid7 import uuid7
 from sqlalchemy import DateTime
 import sqlalchemy.dialects.postgresql as pg
 from sqlalchemy import UniqueConstraint
+from typing import List, Optional
 from app.schemas.page import PageIndexEnum, PageStatusEnum
 
 
@@ -40,3 +41,7 @@ class Page(SQLModel, table=True):
             nullable=False,
         )
     )
+
+    book: Optional["Book"] = Relationship(back_populates='pages') # type: ignore
+
+    chunks: List['Chunk'] = Relationship(back_populates='page', sa_relationship_kwargs={'lazy': 'raise_on_sql'}) # type: ignore

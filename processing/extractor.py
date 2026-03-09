@@ -18,7 +18,7 @@ from docling.datamodel.pipeline_options import (
 )
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.accelerator_options import AcceleratorOptions, AcceleratorDevice
-from docling.datamodel.pipeline_options import ThreadedPdfPipelineOptions, PdfBackend
+from docling.datamodel.pipeline_options import ThreadedPdfPipelineOptions
 from docling.backend.docling_parse_backend import (
     DoclingParseDocumentBackend,
     DoclingParsePageBackend,
