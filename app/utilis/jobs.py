@@ -1,4 +1,4 @@
-from app.models.book import Book
+from core_db.models.book import Book # type: ignore
 import asyncio
 from typing import List, Literal, Tuple
 from app.config import Config
@@ -8,7 +8,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from pymupdf import Document
 import uuid
 import hashlib
-from app.schemas.job import JobTypeEnum, JobPriorityEnum
+from core_db.schemas.job import JobTypeEnum, JobPriorityEnum # type: ignore
 
 failedJobs = []
 

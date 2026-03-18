@@ -9,6 +9,7 @@ dependencies = [
     "alembic>=1.17.2",
     "alembic-postgresql-enum==1.10.0",
     "asyncpg>=0.31.0",
+    "core-db",
     "docling[rapidocr,tesserocr,vlm]>=2.74.0",
     "edwh-uuid7>=0.2.3",
     "fastapi[standard]>=0.128.0",
@@ -34,3 +35,7 @@ dependencies = [
 
 [tool.uv.sources]
 flash-attn = { url = "https://github.com/mjun0812/flash-attention-prebuild-wheels/releases/download/v0.7.16/flash_attn-2.8.3%2Bcu128torch2.10-cp313-cp313-linux_x86_64.whl" }
+core-db = { path = "../core_db", editable = true }
+
+
+

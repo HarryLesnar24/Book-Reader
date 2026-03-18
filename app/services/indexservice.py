@@ -1,6 +1,6 @@
 # from sqlmodel import select
 # from sqlmodel.ext.asyncio.session import AsyncSession
-# from app.models.index import Index
+# from core_db.models.index import Index
 
 
 # class IndexService:

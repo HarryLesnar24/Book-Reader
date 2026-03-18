@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy.dialects.postgresql import insert
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
-from app.models.job import Job
+from core_db.models.job import Job # type: ignore
 
 
 class JobService:

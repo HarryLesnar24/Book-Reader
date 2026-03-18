@@ -3,8 +3,8 @@ import socket
 import asyncio
 import aiofiles
 from pathlib import Path
-from app.models import Job
-from app.models import Book
+from core_db.models import Job
+from core_db.models import Book
 from sqlalchemy import text, select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker

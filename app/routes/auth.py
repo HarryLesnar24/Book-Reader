@@ -7,15 +7,15 @@ from app.dependency import OAuth2PasswordRequestForm
 from app.services.userservice import UserService
 from app.services.authservice import AuthService
 from sqlmodel.ext.asyncio.session import AsyncSession
-from app.schemas.user import UserCreateModel, UserReturnModel
-from app.schemas.auth import RefreshCreateModel
+from core_db.schemas.user import UserCreateModel, UserReturnModel # type: ignore
+from core_db.schemas.auth import RefreshCreateModel # type: ignore
 from typing import cast
-from app.models.user import User
+from core_db.models.user import User # type: ignore
 from pydantic import SecretStr
 from app.utilis.security import JWTPayload, createToken, decodeToken
 from email.utils import format_datetime
 from app.dependency import accessTokenValidation
-from app.schemas.token import AccessToken
+from core_db.schemas.token import AccessToken # type: ignore
 
 
 authRouter = APIRouter()

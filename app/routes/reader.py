@@ -3,7 +3,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi.templating import Jinja2Templates
 from app.database import getSession
 from app.dependency import accessTokenValidation
-from app.schemas.reader import ListBookModel
+from core_db.schemas.reader import ListBookModel # type: ignore
 from app.services import indexservice
 
 # from app.services.indexservice import IndexService

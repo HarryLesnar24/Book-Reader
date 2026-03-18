@@ -1,5 +1,5 @@
-from app.schemas.user import UserCreateModel, UserUpdateModel
-from app.models.user import User
+from core_db.schemas.user import UserCreateModel, UserUpdateModel # type:ignore
+from core_db.models.user import User #type: ignore
 from app.utilis.security import generateHash
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select

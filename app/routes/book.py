@@ -13,10 +13,10 @@ from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.utilis.document import DocumentValidator, DocumentStream
-from app.models.book import Book
+from core_db.models.book import Book # type: ignore
 from app.services.bookservice import BookService
 from app.services.userservice import UserService
-from app.schemas.book import BookResponseModel, BookUpdateModel
+from core_db.schemas.book import BookResponseModel, BookUpdateModel # type: ignore
 from app.services.authservice import AuthService
 from app.database import getSession
 from app.dependency import accessTokenValidation

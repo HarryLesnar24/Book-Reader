@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 # Imported
-import app.models
+import core_db.models # type: ignore
 from app.config import Config
 from sqlmodel import SQLModel
 

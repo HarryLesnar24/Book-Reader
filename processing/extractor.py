@@ -3,6 +3,9 @@ import pymupdf.layout
 import pymupdf4llm
 import docling
 import torch
+from typing import BinaryIO
+from sqlmodel.ext.asyncio.session import AsyncSession
+from core_db.models.job import Job #type: ignore
 
 # from docling.datamodel import pipeline_options, pipeline_options_vlm_model
 from docling_core.types.doc.document import TextItem, CodeItem, FormulaItem
@@ -83,4 +86,75 @@ with open("docling-preview/docling-test-8.md", "w", encoding="utf-8") as f:
     f.write(result.document.export_to_markdown())
 
 
-class PdfProcessor: ...
+
+
+
+
+
+# from docling.document_converter import DocumentConverter
+# from docling_core.types.doc import PictureItem, PictureMeta, DescriptionMetaField
+
+# converter = DocumentConverter()
+# result = converter.convert("document.pdf")
+# doc = result.document
+
+# # Iterate and add captions from your API
+# for pic in doc.pictures:
+#     img = pic.get_image(doc) # Returns PIL Image
+#     if img is None:
+#         continue
+
+#     # Call your remote API
+#     caption = call_your_api(img)
+
+#     # Set the description
+#     if pic.meta is None:
+#         pic.meta = PictureMeta()
+#     pic.meta.description = DescriptionMetaField(text=caption)
+
+# def export_with_captions(doc):
+#     md_lines = []
+#     for item, level in doc.iterate_items():
+#         if isinstance(item, PictureItem):
+#             alt_text = "Image"
+#             if item.meta and item.meta.description:
+#                 alt_text = item.meta.description.text
+
+#             if item.image and item.image.uri:
+#                 md_lines.append(f"![{alt_text}]({item.image.uri})")
+#             else:
+#                 md_lines.append(f"<!-- {alt_text} -->")
+#         # Handle other item types...
+#     return "\n\n".join(md_lines)
+
+
+
+
+
+
+class PdfProcessor: 
+
+    def __init__(self):
+        self.enrichedPages = set()
+
+    def layoutAnalyzer(self, file: BinaryIO, session: AsyncSession):
+        ...
+    
+    def pageExtractor(self):
+        ...
+    
+    def enrichedPageExtractor(self):
+        ...
+    
+    def chunker(self):
+        ...
+    
+    def embedder(self):
+        ...
+
+    def processor(self, job: Job, filepath: str, session: AsyncSession):
+        ...
+    
+
+
+

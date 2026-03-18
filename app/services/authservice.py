@@ -1,11 +1,11 @@
 from sqlalchemy import FallbackAsyncAdaptedQueuePool
-from app.models.user import User
+from core_db.models.user import User # type: ignore
 from pydantic import SecretStr
 from app.utilis.security import verifyHash
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
-from app.models.auth import RefreshToken
-from app.schemas.auth import RefreshCreateModel
+from core_db.models.auth import RefreshToken # type: ignore
+from core_db.schemas.auth import RefreshCreateModel # type: ignore
 
 
 class AuthService:

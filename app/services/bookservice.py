@@ -1,10 +1,10 @@
 from pathlib import Path
 from typing import List, Sequence
 from fastapi import UploadFile
-from app.models.user import User
+from core_db.models.user import User # type:ignore
 from sqlmodel.ext.asyncio.session import AsyncSession
-from app.models.book import Book
-from app.schemas.book import BookCreateModel, BookUpdateModel
+from core_db.models.book import Book # type: ignore
+from core_db.schemas.book import BookCreateModel, BookUpdateModel # type: ignore
 from sqlmodel import select
 from sqlalchemy.exc import SQLAlchemyError
 import aiofiles
