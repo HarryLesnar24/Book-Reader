@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 # Imported
-import core_db.models # type: ignore
+from core_db.models import Job, Page, Chunk, Book, User, RefreshToken # type: ignore
 from app.config import Config
 from sqlmodel import SQLModel
 
@@ -32,6 +32,8 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = SQLModel.metadata
+
+print(target_metadata.tables.keys())
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -56,6 +58,7 @@ def run_migrations_offline() -> None:
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
+        compare_type=True,
         dialect_opts={"paramstyle": "named"},
     )
 

@@ -3,12 +3,18 @@ import asyncio
 from typing import List, Literal, Tuple
 from app.config import Config
 import pymupdf
+from sqlmodel import update
+from app.services import bookservice
 from app.services.jobservice import JobService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from pymupdf import Document
 import uuid
 import hashlib
+from core_db.schemas.book import BookStatusModel
 from core_db.schemas.job import JobTypeEnum, JobPriorityEnum # type: ignore
+
+
+
 
 failedJobs = []
 
@@ -21,7 +27,7 @@ class JobCreator:
     #     return book.duplicate
 
     async def open_document(self, path: str) -> Document:
-        return await asyncio.to_thread(pymupdf.open, path)
+        return await asyncio.to_thread(pymupdf.open, path) # type: ignore
 
     async def pageRangeSelection(
         self, total: int
@@ -43,6 +49,13 @@ class JobCreator:
 
     async def createJob(self, books: List[Book], session: AsyncSession):
         jobsData = []
+
+        await session.exec(
+            update(Book)
+             .where(Book.uid.in_([b.uid for b in books])) # type: ignore
+             .values(status=BookStatusModel.processing)
+        )
+        await session.flush()
         for book in books:
             if not book.duplicate:
                 document = await self.open_document(book.filepath)
