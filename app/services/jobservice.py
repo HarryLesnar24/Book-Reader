@@ -4,6 +4,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 from core_db.models.job import Job # type: ignore
+from edwh_uuid7 import uuid7
 
 
 class JobService:

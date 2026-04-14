@@ -22,16 +22,22 @@ template = Jinja2Templates(directory=f"{Path('app/templates/').absolute()}")
 
 @readRouter.get("/{bookuid}")
 async def viewBook(
-    request: Request, bookuid: str, session: AsyncSession = Depends(getSession)
+    request: Request, bookuid: str, session: AsyncSession = Depends(getSession), user: str = Depends(accessTokenValidation)
 ):
     book = await bookService.getBookByUid(
-        bookUid=bookuid, userUid="019b91ed-5ca4-7c7b-a31a-8534494d622b", session=session
+        bookUid=bookuid, userUid=user, session=session
     )
     if not book:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail={"message": "Book Not Found"}
         )
-    pdfURL = f"{Config.DOMAIN}api/v1/books/{bookuid}/{book.filename}"
+    headerAuth = request.headers.get("Authorization")
+    token = ""
+    if headerAuth and "Bearer " in headerAuth:
+        token = headerAuth.replace("Bearer ", "") 
+    else:
+        token = request.query_params.get("token", "")
+    pdfURL = f"{Config.DOMAIN}api/v1/books/{bookuid}/{book.filename}?token={token}"
 
     return template.TemplateResponse(
         name="viewer.html",

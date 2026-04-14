@@ -11,7 +11,8 @@ from pymupdf import Document
 import uuid
 import hashlib
 from core_db.schemas.book import BookStatusModel
-from core_db.schemas.job import JobTypeEnum, JobPriorityEnum # type: ignore
+from core_db.schemas.job import JobTypeEnum, JobPriorityEnum
+from core_db.schemas.task import TaskStatusEnum
 
 
 
@@ -79,6 +80,7 @@ class JobCreator:
                                 "priority": JobPriorityEnum.high
                                 if jobtype == JobTypeEnum.bootstrap
                                 else JobPriorityEnum.low,
+                                "task_status": TaskStatusEnum.queued,
                                 "page_start": start,
                                 "page_end": end,
                                 "dedupekey": dupeKey,
@@ -100,6 +102,7 @@ class JobCreator:
                             "page_total": end - start + 1,
                             "job_type": JobTypeEnum.bootstrap,
                             "priority": JobPriorityEnum.high,
+                            "task_status": TaskStatusEnum.queued,
                             "page_start": start,
                             "page_end": end,
                             "dedupekey": dupeKey,

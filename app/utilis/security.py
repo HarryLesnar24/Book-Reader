@@ -18,16 +18,16 @@ class JWTPayload(TypedDict):
 pwd = PasswordHash.recommended()
 
 
-def generateHash(password: SecretStr) -> str:
+async def generateHash(password: SecretStr) -> str:
     return pwd.hash(password.get_secret_value())
 
 
-def verifyHash(password: str, pwdHash: str) -> tuple[bool, str | None]:
+async def verifyHash(password: str, pwdHash: str) -> tuple[bool, str | None]:
     valid, update = pwd.verify_and_update(password, pwdHash)
     return (valid, update)
 
 
-def createToken(
+async def createToken(
     userUID: uuid.UUID, expiry: timedelta | None = None, refresh: bool = False
 ) -> tuple[str, JWTPayload] | str:
     payload: JWTPayload = {
@@ -45,7 +45,7 @@ def createToken(
     return (token, payload) if refresh else token
 
 
-def decodeToken(token: str) -> dict | None:
+async def decodeToken(token: str) -> dict | None:
     try:
         tokenData = jwt.decode(
             jwt=token, key=Config.JWT_KEY, algorithms=[Config.JWT_ALGORITHM]

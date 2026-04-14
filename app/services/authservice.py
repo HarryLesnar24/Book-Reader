@@ -12,7 +12,7 @@ class AuthService:
     async def verifypassword(
         self, user: User, secret: SecretStr, session: AsyncSession
     ):
-        crct, update = verifyHash(
+        crct, update = await verifyHash(
             password=secret.get_secret_value(), pwdHash=user.passwordhash
         )
         if update:

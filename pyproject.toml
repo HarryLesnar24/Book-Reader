@@ -1,7 +1,7 @@
 [project]
 name = "collab-book-reader"
 version = "0.1.0"
-description = "Add your description here"
+description = "Web App"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -12,7 +12,6 @@ dependencies = [
     "core-db",
     "edwh-uuid7>=0.2.3",
     "fastapi[standard]>=0.128.0",
-    "flash-attn>=2.8.3",
     "fonttools>=4.61.1",
     "onnxruntime>=1.24.1",
     "pillow>=12.1.0",

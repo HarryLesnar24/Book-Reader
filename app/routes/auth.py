@@ -61,7 +61,7 @@ async def login(
 
     rtoken = request.cookies.get("identity")
     if rtoken:
-        tokenData = decodeToken(rtoken)
+        tokenData = await decodeToken(rtoken)
         if tokenData and await authService.isvalidRefreshToken(
             tokenData["jti"], session
         ):
@@ -87,9 +87,9 @@ async def login(
             detail=f"Invalid Email/Username or Password",
         )
 
-    refreshToken, payloadData = cast(
+    refreshToken, payloadData =  cast(
         tuple[str, dict[str, JWTPayload]],
-        createToken(
+        await createToken(
             user.uid, expiry=timedelta(days=Config.REFRESH_TOKEN_EXPIRE), refresh=True
         ),
     )
@@ -114,7 +114,7 @@ async def login(
         samesite="lax",
     )
 
-    accessToken = cast(str, createToken(user.uid))
+    accessToken = cast(str, await createToken(user.uid))
     return AccessToken(access_token=accessToken, token_type="bearer")
 
 
@@ -127,7 +127,7 @@ async def logout(
 ):
     refreshToken = request.cookies.get("identity")
     if refreshToken:
-        tokenData = decodeToken(refreshToken)
+        tokenData = await decodeToken(refreshToken)
         if (
             tokenData
             and await authService.isvalidRefreshToken(tokenData["jti"], session)
@@ -162,7 +162,7 @@ async def getAccessToken(
     identity = request.cookies.get("identity")
     if not identity:
         raise credentials_exception
-    tokenData = decodeToken(identity)
+    tokenData = await decodeToken(identity)
     if not tokenData:
         raise credentials_exception
     if not await authService.isvalidRefreshToken(tokenData["jti"], session):
@@ -170,5 +170,5 @@ async def getAccessToken(
     userExist = await userService.getUserByUid(tokenData["sub"], session)
     if not userExist:
         raise credentials_exception
-    accessToken = createToken(userExist.uid)
+    accessToken = await createToken(userExist.uid)
     return AccessToken(access_token=cast(str, accessToken), token_type="bearer")

@@ -91,7 +91,7 @@ async def getBookById(
 async def getAllBooks(
     request: Request,
     session: AsyncSession = Depends(getSession),
-    userid: str = "019b91ed-5ca4-7c7b-a31a-8534494d622b",
+    userid: str = Depends(accessTokenValidation),
 ):
     books = await bookService.getUserBooks(userid, session)
     if not books:
@@ -133,7 +133,7 @@ async def streamBookData(
     request: Request,
     bookid: str,
     filename: str,
-    userid: str = "019b91ed-5ca4-7c7b-a31a-8534494d622b",
+    userid: str = Depends(accessTokenValidation),
     session: AsyncSession = Depends(getSession),
 ) -> StreamingResponse:
     book = await bookService.getBookByUid(
