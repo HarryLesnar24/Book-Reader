@@ -1,3 +1,4 @@
+import uuid
 from pathlib import Path
 from typing import List, Sequence
 from fastapi import UploadFile
@@ -51,7 +52,7 @@ class BookService:
                     filename = f"{originalStem}({i}){suffix}"
 
                 book = BookCreateModel(
-                    filename=filename, user_uid=str(user.uid), filepath=""
+                    filename=filename, user_uid=user.uid, filepath=""
                 )
                 newBook = Book(**book.model_dump())
 

@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     DOMAIN: str
     API_VERSION: str
     RANGE: int
+    QDRANT_HOST: str
+    QDRANT_PORT: int
+    COLLECTION_NAME: str
+
 
     model_config = SettingsConfigDict(
         env_file=str(Path(__file__).resolve().parent.parent / ".env"), extra="ignore"

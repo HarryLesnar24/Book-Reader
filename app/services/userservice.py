@@ -44,7 +44,7 @@ class UserService:
     ) -> User:
         userDict = userData.model_dump()
         newUser = User(**userDict)
-        newUser.passwordhash = generateHash(userDict["password"])
+        newUser.passwordhash = await generateHash(userDict["password"])
         session.add(newUser)
         await session.commit()
         return newUser
