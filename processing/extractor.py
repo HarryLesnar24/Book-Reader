@@ -5,7 +5,7 @@ import docling
 import torch
 from typing import BinaryIO
 from sqlmodel.ext.asyncio.session import AsyncSession
-from core_db.models.job import Job #type: ignore
+from core_db.models.job import Job  # type: ignore
 
 # from docling.datamodel import pipeline_options, pipeline_options_vlm_model
 from docling_core.types.doc.document import TextItem, CodeItem, FormulaItem
@@ -86,11 +86,6 @@ with open("docling-preview/docling-test-8.md", "w", encoding="utf-8") as f:
     f.write(result.document.export_to_markdown())
 
 
-
-
-
-
-
 # from docling.document_converter import DocumentConverter
 # from docling_core.types.doc import PictureItem, PictureMeta, DescriptionMetaField
 
@@ -128,33 +123,18 @@ with open("docling-preview/docling-test-8.md", "w", encoding="utf-8") as f:
 #     return "\n\n".join(md_lines)
 
 
-
-
-
-
-class PdfProcessor: 
-
+class PdfProcessor:
     def __init__(self):
         self.enrichedPages = set()
 
-    def layoutAnalyzer(self, file: BinaryIO, session: AsyncSession):
-        ...
-    
-    def pageExtractor(self):
-        ...
-    
-    def enrichedPageExtractor(self):
-        ...
-    
-    def chunker(self):
-        ...
-    
-    def embedder(self):
-        ...
+    def layoutAnalyzer(self, file: BinaryIO, session: AsyncSession): ...
 
-    def processor(self, job: Job, filepath: str, session: AsyncSession):
-        ...
-    
+    def pageExtractor(self): ...
 
+    def enrichedPageExtractor(self): ...
 
+    def chunker(self): ...
 
+    def embedder(self): ...
+
+    def processor(self, job: Job, filepath: str, session: AsyncSession): ...

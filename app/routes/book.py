@@ -13,16 +13,17 @@ from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.utilis.document import DocumentValidator, DocumentStream
-from core_db.models.book import Book # type: ignore
+from core_db.models.book import Book  # type: ignore
 from app.services.bookservice import BookService
 from app.services.userservice import UserService
-from core_db.schemas.book import BookResponseModel, BookUpdateModel # type: ignore
+from core_db.schemas.book import BookResponseModel, BookUpdateModel  # type: ignore
 from app.services.authservice import AuthService
 from app.database import getSession
-from app.dependency import accessTokenValidation
+from app.dependency import accessTokenValidation, getS3Client
 from typing import Annotated, List
 from app.config import Config
 from app.utilis.jobs import JobCreator
+from mypy_boto3_s3 import S3Client
 
 
 bookRouter = APIRouter()
@@ -40,6 +41,7 @@ async def uploadBooks(
     files: Annotated[list[UploadFile], File(...)],
     session: AsyncSession = Depends(getSession),
     userid: str = Depends(accessTokenValidation),
+    s3Client: S3Client = Depends(getS3Client)
 ) -> List[Book]:
     creator = JobCreator()
     if len(files) > Config.MAX_FILE_UPLOAD:
@@ -64,7 +66,7 @@ async def uploadBooks(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"message": "Invalid User ID"},
         )
-    books = await bookService.createBooks(files=files, user=user, session=session)
+    books = await bookService.createBooks(files=files, user=user, session=session, s3=s3Client)
     if not books:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail={"message": "Upload Fails"}

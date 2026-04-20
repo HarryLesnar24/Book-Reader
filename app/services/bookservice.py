@@ -1,14 +1,19 @@
 import uuid
+from pypdf import PdfReader
+import boto3
+import asyncio
+from app.config import Config
 from pathlib import Path
 from typing import List, Sequence
 from fastapi import UploadFile
-from core_db.models.user import User # type:ignore
+from core_db.models.user import User  # type:ignore
 from sqlmodel.ext.asyncio.session import AsyncSession
-from core_db.models.book import Book # type: ignore
-from core_db.schemas.book import BookCreateModel, BookUpdateModel # type: ignore
+from core_db.models.book import Book  # type: ignore
+from core_db.schemas.book import BookCreateModel, BookUpdateModel  # type: ignore
 from sqlmodel import select
 from sqlalchemy.exc import SQLAlchemyError
 import aiofiles
+from mypy_boto3_s3 import S3Client
 
 
 class BookService:
@@ -27,16 +32,15 @@ class BookService:
         return True if book.first() else False
 
     async def createBooks(
-        self, files: List[UploadFile], user: User, session: AsyncSession
+        self, files: List[UploadFile], user: User, session: AsyncSession, s3: S3Client
     ) -> List[Book]:
-        uploadedPaths: List[Path] = []
+        uploadedKeys: List[str] = []
         books: List[Book] = []
-
-        uploadDir = Path("storage/books") / f"{user.username}-{user.uid}"
-        uploadDir.mkdir(exist_ok=True, parents=True)
 
         try:
             for file in files:
+                pdfReader = PdfReader(file.file)
+                totalPages = pdfReader.get_num_pages()
                 assert file.filename is not None
                 duplicate = False
                 filename = file.filename
@@ -56,21 +60,29 @@ class BookService:
                 )
                 newBook = Book(**book.model_dump())
 
-                filePath = uploadDir / f"{Path(filename).stem}-{newBook.uid}{suffix}"
+                s3Key = f"{user.uid}/books/{newBook.uid}/{filename}"
 
                 # Write file safely
                 try:
                     await file.seek(0)
-                    async with aiofiles.open(filePath, "wb") as buffer:
-                        while chunk := await file.read(8 * 1024 * 1024):
-                            await buffer.write(chunk)
+                    await asyncio.to_thread(
+                        s3.upload_fileobj,
+                        file.file,
+                        Config.S3_BUCKET,
+                        s3Key,
+                        ExtraArgs={
+                            "ContentType": file.content_type or "application/pdf"
+                        },
+                    )
+
                 except Exception as io_err:
                     raise IOError(f"Failed to save file {filename}: {io_err}")
 
                 if duplicate:
                     newBook.duplicate = duplicate
-                uploadedPaths.append(filePath)
-                newBook.filepath = str(filePath.absolute())
+                uploadedKeys.append(s3Key)
+                newBook.filepath = s3Key
+                newBook.total_pages = totalPages
                 books.append(newBook)
 
             # Commit DB transaction
@@ -83,9 +95,13 @@ class BookService:
             await session.rollback()
 
             # Cleanup uploaded files
-            for path in uploadedPaths:
-                if path.exists():
-                    path.unlink()
+            for key in uploadedKeys:
+                try:
+                    await asyncio.to_thread(
+                        s3.delete_object, Bucket=Config.S3_BUCKET, Key=key
+                    )
+                except:
+                    pass
 
             # Raise clear error
             raise RuntimeError(f"Book upload failed: {str(e)}") from e
@@ -93,9 +109,13 @@ class BookService:
         except Exception as e:
             # Catch-all fallback
             await session.rollback()
-            for path in uploadedPaths:
-                if path.exists():
-                    path.unlink()
+            for key in uploadedKeys:
+                try:
+                    await asyncio.to_thread(
+                        s3.delete_object, Bucket=Config.S3_BUCKET, Key=key
+                    )
+                except:
+                    pass
             raise RuntimeError(f"Unexpected error during book upload: {str(e)}") from e
 
     async def getBookByUid(

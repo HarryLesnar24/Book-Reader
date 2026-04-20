@@ -1,20 +1,16 @@
-from core_db.models.book import Book # type: ignore
+from core_db.models.book import Book  # type: ignore
 import asyncio
 from typing import List, Literal, Tuple
 from app.config import Config
-import pymupdf
 from sqlmodel import update
 from app.services import bookservice
 from app.services.jobservice import JobService
 from sqlmodel.ext.asyncio.session import AsyncSession
-from pymupdf import Document
 import uuid
 import hashlib
 from core_db.schemas.book import BookStatusModel
 from core_db.schemas.job import JobTypeEnum, JobPriorityEnum
 from core_db.schemas.task import TaskStatusEnum
-
-
 
 
 failedJobs = []
@@ -26,10 +22,6 @@ jobService = JobService()
 class JobCreator:
     # async def isduplicate(self, book: Book):
     #     return book.duplicate
-
-    async def open_document(self, path: str) -> Document:
-        return await asyncio.to_thread(pymupdf.open, path) # type: ignore
-
     async def pageRangeSelection(
         self, total: int
     ) -> Tuple[Literal[0], int] | List[Tuple[int, int]]:
@@ -53,14 +45,13 @@ class JobCreator:
 
         await session.exec(
             update(Book)
-             .where(Book.uid.in_([b.uid for b in books])) # type: ignore
-             .values(status=BookStatusModel.processing)
+            .where(Book.uid.in_([b.uid for b in books]))  # type: ignore
+            .values(status=BookStatusModel.processing)
         )
         await session.flush()
         for book in books:
             if not book.duplicate:
-                document = await self.open_document(book.filepath)
-                totalPages = document.page_count
+                totalPages = book.total_pages
                 rangePages = await self.pageRangeSelection(totalPages)
 
                 if isinstance(rangePages, list):

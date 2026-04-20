@@ -7,15 +7,15 @@ from app.dependency import OAuth2PasswordRequestForm
 from app.services.userservice import UserService
 from app.services.authservice import AuthService
 from sqlmodel.ext.asyncio.session import AsyncSession
-from core_db.schemas.user import UserCreateModel, UserReturnModel # type: ignore
-from core_db.schemas.auth import RefreshCreateModel # type: ignore
+from core_db.schemas.user import UserCreateModel, UserReturnModel  # type: ignore
+from core_db.schemas.auth import RefreshCreateModel  # type: ignore
 from typing import cast
-from core_db.models.user import User # type: ignore
+from core_db.models.user import User  # type: ignore
 from pydantic import SecretStr
 from app.utilis.security import JWTPayload, createToken, decodeToken
 from email.utils import format_datetime
 from app.dependency import accessTokenValidation
-from core_db.schemas.token import AccessToken # type: ignore
+from core_db.schemas.token import AccessToken  # type: ignore
 
 
 authRouter = APIRouter()
@@ -87,7 +87,7 @@ async def login(
             detail=f"Invalid Email/Username or Password",
         )
 
-    refreshToken, payloadData =  cast(
+    refreshToken, payloadData = cast(
         tuple[str, dict[str, JWTPayload]],
         await createToken(
             user.uid, expiry=timedelta(days=Config.REFRESH_TOKEN_EXPIRE), refresh=True

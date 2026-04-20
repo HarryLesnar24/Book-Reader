@@ -1,16 +1,24 @@
+import urllib
+import mimetypes
+import urllib.parse
 from fastapi import Depends, status, APIRouter, HTTPException, Request
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi.templating import Jinja2Templates
 from app.database import getSession
-from app.dependency import accessTokenValidation
-from core_db.schemas.reader import ListBookModel # type: ignore
-from app.services import indexservice
+from app.dependency import accessTokenValidation, getS3Client
+from core_db.schemas.reader import ListBookModel  # type: ignore
+# from app.services import indexservice
 
 # from app.services.indexservice import IndexService
 from typing import List
 from pathlib import Path
 from app.services.bookservice import BookService
 from app.config import Config
+from mypy_boto3_s3 import S3Client
+
+from botocore.exceptions import ClientError
+
+
 
 
 readRouter = APIRouter()
@@ -22,7 +30,11 @@ template = Jinja2Templates(directory=f"{Path('app/templates/').absolute()}")
 
 @readRouter.get("/{bookuid}")
 async def viewBook(
-    request: Request, bookuid: str, session: AsyncSession = Depends(getSession), user: str = Depends(accessTokenValidation)
+    request: Request,
+    bookuid: str,
+    session: AsyncSession = Depends(getSession),
+    user: str = Depends(accessTokenValidation),
+    s3: S3Client = Depends(getS3Client)
 ):
     book = await bookService.getBookByUid(
         bookUid=bookuid, userUid=user, session=session
@@ -31,17 +43,28 @@ async def viewBook(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail={"message": "Book Not Found"}
         )
-    headerAuth = request.headers.get("Authorization")
-    token = ""
-    if headerAuth and "Bearer " in headerAuth:
-        token = headerAuth.replace("Bearer ", "") 
-    else:
-        token = request.query_params.get("token", "")
-    pdfURL = f"{Config.DOMAIN}api/v1/books/{bookuid}/{book.filename}?token={token}"
+    try:
+        rawUrl = s3.generate_presigned_url(
+            ClientMethod='get_object',
+            Params={
+                'Bucket': Config.S3_BUCKET,
+                'Key': book.filepath,
+                'ResponseContentDisposition': f'inline; filename={book.filename}',
+                'ResponseContentType': 'application/pdf'
+                },
+            ExpiresIn=28800
+        )
+    except ClientError as clientErr:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"message": f"Could not generate secure stream link {clientErr}"}
+        )
+    
+    pdfUrl = urllib.parse.quote(rawUrl, safe='')
 
     return template.TemplateResponse(
         name="viewer.html",
-        context={"request": request, "url": pdfURL, "filename": book.filename},
+        context={"request": request, "url": pdfUrl, "filename": book.filename},
     )
 
 

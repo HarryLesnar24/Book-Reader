@@ -1,11 +1,11 @@
 from sqlalchemy import FallbackAsyncAdaptedQueuePool
-from core_db.models.user import User # type: ignore
+from core_db.models.user import User  # type: ignore
 from pydantic import SecretStr
 from app.utilis.security import verifyHash
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
-from core_db.models.auth import RefreshToken # type: ignore
-from core_db.schemas.auth import RefreshCreateModel # type: ignore
+from core_db.models.auth import RefreshToken  # type: ignore
+from core_db.schemas.auth import RefreshCreateModel  # type: ignore
 
 
 class AuthService:
@@ -55,5 +55,3 @@ class AuthService:
         if not result:
             return False
         return True if result.first() == False else False
-
-
