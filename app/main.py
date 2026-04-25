@@ -19,8 +19,6 @@ from typing import cast
 from mypy_boto3_s3 import S3Client
 from mypy_boto3_s3.type_defs import CORSConfigurationTypeDef, CreateBucketConfigurationTypeDef
 
-mimetypes.add_type("application/javascript", ".mjs")
-mimetypes.add_type("application/javascript", ".js")
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"

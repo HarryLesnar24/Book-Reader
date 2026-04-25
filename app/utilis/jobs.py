@@ -57,7 +57,7 @@ class JobCreator:
                 if isinstance(rangePages, list):
                     for i, (start, end) in enumerate(rangePages):
                         jobtype = (
-                            JobTypeEnum.bootstrap if i == 0 else JobTypeEnum.background
+                            JobTypeEnum.bootstrap if i < 2 else JobTypeEnum.background
                         )
                         dupeKey = await self.createDupeKey(
                             start, end, str(book.uid), str(book.user_uid), jobtype
