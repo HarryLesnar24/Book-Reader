@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     QDRANT_HOST: str
     QDRANT_PORT: int
     COLLECTION_NAME: str
+    EMBEDDING_MODEL: str
     S3_BUCKET: str
     S3_ENDPOINT: str
     AWS_ACCESS_KEY_ID: str

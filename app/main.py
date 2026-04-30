@@ -10,19 +10,21 @@ from contextlib import asynccontextmanager
 from app.config import Config
 from qdrant_client.async_qdrant_client import AsyncQdrantClient
 from qdrant_client import models
-from typing import AsyncGenerator
 from core_db.vector.db import createCollection
+from core_ml.embedder.model import EmbeddingService
 import boto3
 import botocore
-import mimetypes
 from typing import cast
 from mypy_boto3_s3 import S3Client
 from mypy_boto3_s3.type_defs import CORSConfigurationTypeDef, CreateBucketConfigurationTypeDef
 
 
+
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
+
 asynClient = AsyncQdrantClient(host=Config.QDRANT_HOST, port=Config.QDRANT_PORT)
 corsConfig = cast(CORSConfigurationTypeDef, {
     'CORSRules': [
@@ -40,6 +42,7 @@ corsConfig = cast(CORSConfigurationTypeDef, {
         }
     ]
 })
+embedder = EmbeddingService()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -74,9 +77,11 @@ async def lifespan(app: FastAPI):
             name=Config.COLLECTION_NAME,
         )
         logging.info(msg=f"Created {Config.COLLECTION_NAME} Collection")
+    embedder.initialize(Config.EMBEDDING_MODEL)   
     yield
     s3.close()
     await asynClient.close()
+    embedder.teardown()
 
 version = Config.API_VERSION
 
